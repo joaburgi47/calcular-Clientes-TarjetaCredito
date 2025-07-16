@@ -1,0 +1,561 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Calculadora de Recargo - Tarjeta de Crédito</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            background: #f8f9fa;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+            border: 1px solid #e1e5e9;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .result-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
+            text-align: right;
+        }
+
+        .result-value.total {
+            color: #28a745;
+            font-size: 1.4em;
+        }
+
+        .result-value.percentage {
+            color: #dc3545;
+        }
+
+        .breakdown {
+            background: #e8f4fd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .breakdown h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .breakdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .icon {
+            width: 18px;
+            text-align: center;
+        }
+
+        .share-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .share-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.8em;
+        }
+
+        /* Mejoras para móviles */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+                margin-top: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .input-group input,
+            .input-group select {
+                padding: 16px;
+                font-size: 16px; /* Evita zoom en iOS */
+            }
+
+            .calculate-btn {
+                padding: 20px;
+                font-size: 1.1em;
+            }
+
+            .result-value {
+                font-size: 1.1em;
+            }
+
+            .result-value.total {
+                font-size: 1.3em;
+            }
+        }
+
+        /* Mejoras para tablets */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin-top: 20px;
+            }
+        }
+
+        /* Mejoras para desktop */
+        @media (min-width: 769px) {
+            .container {
+                padding: 30px;
+                margin-top: 30px;
+            }
+        }
+
+        /* Animaciones de carga */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Mejoras de accesibilidad */
+        .input-group input:focus,
+        .input-group select:focus,
+        .calculate-btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calculator"></i> Calculadora de Recargo</h1>
+            <p>Calculá cuánto cobrar con tarjeta de crédito</p>
+        </div>
+
+        <div class="input-group">
+            <label for="netAmount">
+                <i class="fas fa-dollar-sign"></i> Monto que querés recibir en mano:
+            </label>
+            <input type="number" id="netAmount" placeholder="Ej: 100000" min="0" step="0.01" inputmode="decimal">
+        </div>
+
+        <div class="input-group">
+            <label for="installments">
+                <i class="fas fa-credit-card"></i> Cantidad de cuotas:
+            </label>
+            <select id="installments">
+                <option value="1">1 cuota (contado)</option>
+                <option value="2">2 cuotas</option>
+                <option value="3">3 cuotas</option>
+                <option value="4">4 cuotas</option>
+                <option value="5">5 cuotas</option>
+                <option value="6">6 cuotas</option>
+                <option value="7">7 cuotas</option>
+                <option value="8">8 cuotas</option>
+                <option value="9">9 cuotas</option>
+                <option value="10">10 cuotas</option>
+                <option value="11">11 cuotas</option>
+                <option value="12">12 cuotas</option>
+            </select>
+        </div>
+
+        <button class="calculate-btn" onclick="calculate()" id="calculateBtn">
+            <i class="fas fa-calculator"></i> Calcular
+        </button>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <div class="result-label">
+                    <i class="fas fa-hand-holding-usd icon"></i>
+                    Monto a cobrar:
+                </div>
+                <div class="result-value total" id="totalAmount">$0</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">
+                    <i class="fas fa-percentage icon"></i>
+                    Recargo total:
+                </div>
+                <div class="result-value percentage" id="totalSurcharge">0%</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">
+                    <i class="fas fa-credit-card icon"></i>
+                    Valor de cada cuota:
+                </div>
+                <div class="result-value" id="installmentValue">$0</div>
+            </div>
+
+            <div class="breakdown">
+                <h3><i class="fas fa-list"></i> Desglose de costos:</h3>
+                <div class="breakdown-item">
+                    <span>Comisión tarjeta (1.8%):</span>
+                    <span id="cardCommission">$0</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Ingresos Brutos (3.5%):</span>
+                    <span id="grossIncome">$0</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Servicio financiera (1.5%):</span>
+                    <span id="financialService">$0</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Costo financiero cuotas:</span>
+                    <span id="financialCost">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="share-section" id="shareSection" style="display: none;">
+            <a href="#" class="share-btn" onclick="shareResults()">
+                <i class="fab fa-whatsapp"></i>
+                Compartir resultado
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Calculadora de recargo para tarjetas de crédito</p>
+    </div>
+
+    <script>
+        // Coeficientes por cuotas según la tabla proporcionada
+        const coefficients = {
+            1: 1.0000, // Sin recargo para 1 cuota
+            2: 1.1062,
+            3: 1.1449,
+            4: 1.1844,
+            5: 1.2248,
+            6: 1.266,
+            7: 1.3229,
+            8: 1.368,
+            9: 1.4141,
+            10: 1.461,
+            11: 1.5088,
+            12: 1.5575
+        };
+
+        let currentResults = {};
+
+        function calculate() {
+            const netAmount = parseFloat(document.getElementById('netAmount').value);
+            const installments = parseInt(document.getElementById('installments').value);
+            const calculateBtn = document.getElementById('calculateBtn');
+
+            if (!netAmount || netAmount <= 0) {
+                alert('Por favor, ingresá un monto válido');
+                return;
+            }
+
+            // Mostrar estado de carga
+            calculateBtn.classList.add('loading');
+            calculateBtn.disabled = true;
+            calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculando...';
+
+            // Simular un pequeño delay para mejor UX
+            setTimeout(() => {
+                performCalculation(netAmount, installments);
+                calculateBtn.classList.remove('loading');
+                calculateBtn.disabled = false;
+                calculateBtn.innerHTML = '<i class="fas fa-calculator"></i> Calcular';
+            }, 300);
+        }
+
+        function performCalculation(netAmount, installments) {
+            // Tasas fijas
+            const cardCommissionRate = 0.018; // 1.8%
+            const grossIncomeRate = 0.035; // 3.5%
+            const financialServiceRate = 0.015; // 1.5%
+
+            // Coeficiente según cuotas
+            const coefficient = coefficients[installments] || 1.0;
+
+            // Cálculo del monto total a cobrar
+            const totalAmount = netAmount * coefficient / (1 - cardCommissionRate - grossIncomeRate - financialServiceRate);
+
+            // Cálculo de los desgloses
+            const cardCommission = totalAmount * cardCommissionRate;
+            const grossIncome = totalAmount * grossIncomeRate;
+            const financialService = totalAmount * financialServiceRate;
+            const financialCost = totalAmount - (totalAmount / coefficient);
+
+            // Cálculo del recargo total
+            const totalSurcharge = ((totalAmount - netAmount) / netAmount) * 100;
+
+            // Valor de cada cuota
+            const installmentValue = totalAmount / installments;
+
+            // Guardar resultados para compartir
+            currentResults = {
+                netAmount,
+                totalAmount,
+                totalSurcharge,
+                installmentValue,
+                installments,
+                cardCommission,
+                grossIncome,
+                financialService,
+                financialCost
+            };
+
+            // Mostrar resultados
+            document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('totalSurcharge').textContent = `+${totalSurcharge.toFixed(2)}%`;
+            document.getElementById('installmentValue').textContent = `$${installmentValue.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Mostrar desglose
+            document.getElementById('cardCommission').textContent = `$${cardCommission.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('grossIncome').textContent = `$${grossIncome.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('financialService').textContent = `$${financialService.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('financialCost').textContent = `$${financialCost.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Mostrar resultados y botón de compartir
+            document.getElementById('results').classList.add('show');
+            document.getElementById('shareSection').style.display = 'block';
+        }
+
+        function shareResults() {
+            const { netAmount, totalAmount, totalSurcharge, installmentValue, installments } = currentResults;
+            
+            const message = `💳 *Calculadora de Recargo*
+
+💰 *Monto deseado:* $${netAmount.toLocaleString('es-AR')}
+💳 *Cuotas:* ${installments}
+💵 *Monto a cobrar:* $${totalAmount.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+📈 *Recargo:* +${totalSurcharge.toFixed(2)}%
+💸 *Valor cuota:* $${installmentValue.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+
+Calculado con la calculadora oficial`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Event listeners
+        document.getElementById('netAmount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+
+        document.getElementById('installments').addEventListener('change', function() {
+            if (document.getElementById('netAmount').value) {
+                calculate();
+            }
+        });
+
+        // Mejorar UX en móviles
+        document.getElementById('netAmount').addEventListener('input', function() {
+            if (this.value && document.getElementById('installments').value) {
+                // Calcular automáticamente después de un delay
+                clearTimeout(this.timeout);
+                this.timeout = setTimeout(() => {
+                    if (this.value) calculate();
+                }, 1000);
+            }
+        });
+
+        // Prevenir zoom en iOS
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+
+        // Mejorar rendimiento en scroll
+        let ticking = false;
+        function updateOnScroll() {
+            if (!ticking) {
+                requestAnimationFrame(function() {
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+        window.addEventListener('scroll', updateOnScroll);
+    </script>
+</body>
+</html> 
